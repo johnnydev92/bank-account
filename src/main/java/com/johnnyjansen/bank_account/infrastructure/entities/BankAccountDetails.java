@@ -13,7 +13,7 @@ import java.time.LocalDate;
 @Entity
 @Table(name = "bank_details")
 @Builder
-public class BankAccountDetailsEntity {
+public class BankAccountDetails {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -39,6 +39,6 @@ public class BankAccountDetailsEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
-    private BankAccountEntity user;
+    private BankAccount user;
 
 }

@@ -2,11 +2,11 @@ package com.johnnyjansen.bank_account.business.mapper;
 
 
 import com.johnnyjansen.bank_account.business.dtos.in.BankAccountDetailsRequestDTO;
-import com.johnnyjansen.bank_account.business.dtos.in.BankAccountEntityRequestDTO;
+import com.johnnyjansen.bank_account.business.dtos.in.BankAccountRequestDTO;
 import com.johnnyjansen.bank_account.business.dtos.out.BankAccountDetailsResponseDTO;
-import com.johnnyjansen.bank_account.business.dtos.out.BankAccountEntityResponseDTO;
-import com.johnnyjansen.bank_account.infrastructure.entities.BankAccountDetailsEntity;
-import com.johnnyjansen.bank_account.infrastructure.entities.BankAccountEntity;
+import com.johnnyjansen.bank_account.business.dtos.out.BankAccountResponseDTO;
+import com.johnnyjansen.bank_account.infrastructure.entities.BankAccountDetails;
+import com.johnnyjansen.bank_account.infrastructure.entities.BankAccount;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
@@ -17,32 +17,32 @@ public interface BankConverter {
 
 
         @Mapping(source = "user.id", target = "userId")
-        BankAccountDetailsResponseDTO toBankAccountDetailsResponseDTO(BankAccountDetailsEntity entity);
+        BankAccountDetailsResponseDTO toBankAccountDetailsResponseDTO(BankAccountDetails entity);
 
-        List<BankAccountDetailsResponseDTO> toBankAccountDetailsResponseDTOList(List<BankAccountDetailsEntity> entities);
+        List<BankAccountDetailsResponseDTO> toBankAccountDetailsResponseDTOList(List<BankAccountDetails> entities);
 
         @Mapping(source = "userId", target = "user")
-        BankAccountDetailsEntity toBankAccountDetailsEntity(BankAccountDetailsRequestDTO dto);
+        BankAccountDetails toBankAccountDetails(BankAccountDetailsRequestDTO dto);
 
-        List<BankAccountDetailsEntity> toBankAccountDetailsEntityList(List<BankAccountDetailsRequestDTO> dtos);
+        List<BankAccountDetails> toBankAccountDetailsList(List<BankAccountDetailsRequestDTO> dtos);
 
-        BankAccountEntityResponseDTO toBankAccountEntityResponseDTO(BankAccountEntity entity);
+        BankAccountResponseDTO toBankAccountResponseDTO(BankAccount entity);
 
-        List<BankAccountEntityResponseDTO> toBankAccountEntityResponseDTOList(List<BankAccountEntity> entities);
+        List<BankAccountResponseDTO> toBankAccountResponseDTOList(List<BankAccount> entities);
 
         @Mapping(target = "password", ignore = true)
         @Mapping(target = "bankAccountDetailsEntities", ignore = true)
-        BankAccountEntity toBankAccountEntity(BankAccountEntityRequestDTO dto);
+        BankAccount toBankAccount(BankAccountRequestDTO dto);
 
-        BankAccountEntityRequestDTO toBankAccountEntityRequestDTO(BankAccountEntity entity);
+        BankAccountRequestDTO toBankAccountRequestDTO(BankAccount entity);
 
 
 
-        default BankAccountEntity map(Long userId) {
+        default BankAccount map(Long userId) {
             if (userId == null) {
                 return null;
                  }
-        return BankAccountEntity.builder().id(userId).build();
+        return BankAccount.builder().id(userId).build();
     }
 
 

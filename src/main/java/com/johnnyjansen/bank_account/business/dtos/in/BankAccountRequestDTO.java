@@ -4,7 +4,6 @@ package com.johnnyjansen.bank_account.business.dtos.in;
 import lombok.*;
 
 import java.time.LocalDate;
-import java.time.YearMonth;
 
 @Getter
 @Setter
@@ -12,7 +11,7 @@ import java.time.YearMonth;
 @NoArgsConstructor
 @Builder
 @EqualsAndHashCode
-public class BankAccountEntityRequestDTO {
+public class BankAccountRequestDTO {
 
     private Long id;
     private String name;
