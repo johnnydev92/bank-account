@@ -13,50 +13,52 @@ import java.util.Date;
 @Service
 public class JwtUtil {
 
-    // Chave secreta codificada em Base64
+    // Base64-encoded secret key used for signing the JWT
     private final String base64SecretKey = "c2VjdXJlLWNoYXJhY3Rlci1zdXBlci1zZWFjdXJlLXdpdGgtYS1saW5nLXRleHQ=";
 
-    // Gera uma Key a partir da chave secreta String codificada em Base64
+    // Generates a SecretKey from the Base64-encoded secret
     private SecretKey getSigningKey() {
-        // Decodifica a chave secreta em Base64 padrão e cria uma SecretKey
         byte[] keyBytes = Base64.getDecoder().decode(base64SecretKey);
         return Keys.hmacShaKeyFor(keyBytes);
     }
-    // Gera um token JWT com o nome de usuário e validade de 1 hora
-    public String generateToken(String cpf) {
-        return Jwts.builder() // Inicia o processo de construção do token JWT
-                .subject(cpf) // Define o nome de usuário como o "subject" do token
-                .issuedAt(new Date()) // Define a data e hora atuais como o momento de emissão do token
-                .expiration(new Date(System.currentTimeMillis() + 1000 * 60 * 60)) // Define a data e hora de expiração do token para 1 hora a partir da emissão
-                .signWith(getSigningKey()) // Assina o token usando a chave de assinatura fornecida pelo método getSigningKey()
-                .compact(); // Conclui a construção do token e retorna o token compactado como uma String
+
+    // Generates a JWT token using the user's email as the subject, valid for 1 hour
+    public String generateToken(String email) {
+        return Jwts.builder()
+                .subject(email) // Set the email as the subject (identifier) of the token
+                .issuedAt(new Date()) // Set the issue date (now)
+                .expiration(new Date(System.currentTimeMillis() + 1000 * 60 * 60)) // Set expiration to 1 hour from now
+                .signWith(getSigningKey()) // Sign the token with the secret key
+                .compact(); // Build and return the JWT string
     }
 
-    // Extrai as claims do token JWT (informações adicionais do token)
+    // Extracts claims (payload) from the JWT
     private Claims extractClaims(String token) {
-        return Jwts.parser() // Inicia o processo de parsing do token JWT
-                .verifyWith(getSigningKey()) // Configura o parser para verificar a assinatura do token usando a chave de assinatura fornecida
-                .build() // Conclui a configuração do parser
-                .parseSignedClaims(token) // Faz o parsing do token e extrai as claims assinadas
-                .getPayload(); // Obtém o payload (corpo) do token, que contém as claims
+        return Jwts.parser()
+                .verifyWith(getSigningKey()) // Use the same signing key to validate the token
+                .build()
+                .parseSignedClaims(token) // Parse the token and verify its signature
+                .getPayload(); // Return the token's payload (claims)
     }
 
-
-    // Extrai o CRM do usuário do token JWT
-    public String extractToken(String token) {
-        // Obtém o assunto (nome de usuário) das claims do token
+    // Extracts the user's email (subject) from the token
+    public String extractEmail(String token) {
         return extractClaims(token).getSubject();
     }
 
-    // Verifica se o token JWT está expirado
+    // Extracts the user's cpf from the token
+    public String extractCpf(String token) {
+        return extractClaims(token).get("cpf", String.class);
+    }
+
+    // Checks whether the token is expired
     public boolean isTokenExpired(String token) {
-        // Compara a data de expiração do token com a data atual
         return extractClaims(token).getExpiration().before(new Date());
     }
 
+    // Validates the token by comparing the username (email) and checking expiration
     public boolean validateToken(String token, String username) {
-        final String extractedUsername = extractToken(token);  // extrai o CRM do token
+        final String extractedUsername = extractEmail(token);
         return (extractedUsername.equals(username) && !isTokenExpired(token));
     }
-
 }

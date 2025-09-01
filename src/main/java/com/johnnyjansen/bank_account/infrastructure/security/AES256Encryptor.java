@@ -20,7 +20,7 @@ public class AES256Encryptor {
 
     @PostConstruct
     private void init() {
-        // Verifica se a chave tem exatamente 32 caracteres
+        // Check if the key is exactly 32 characters long (256 bits)
         if (secretKeyConfig.length() != 32) {
             throw new IllegalArgumentException("AES key must be exactly 32 characters (256 bits) long.");
         }
@@ -28,38 +28,38 @@ public class AES256Encryptor {
     }
 
     public String encrypt(String originalText) throws Exception {
-        // Gera um IV aleatório de 16 bytes
+        // Generate a random 16-byte IV
         byte[] iv = new byte[16];
         new SecureRandom().nextBytes(iv);
         IvParameterSpec ivSpec = new IvParameterSpec(iv);
 
-        // Criptografa o texto
+        // Encrypt the text
         Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5Padding");
         cipher.init(Cipher.ENCRYPT_MODE, secretKey, ivSpec);
         byte[] encrypted = cipher.doFinal(originalText.getBytes());
 
-        // Junta o IV com o texto criptografado
-        byte[] ivMaisEncrypted = new byte[iv.length + encrypted.length];
-        System.arraycopy(iv, 0, ivMaisEncrypted, 0, iv.length);
-        System.arraycopy(encrypted, 0, ivMaisEncrypted, iv.length, encrypted.length);
+        // Combine IV with the encrypted text
+        byte[] ivPlusEncrypted = new byte[iv.length + encrypted.length];
+        System.arraycopy(iv, 0, ivPlusEncrypted, 0, iv.length);
+        System.arraycopy(encrypted, 0, ivPlusEncrypted, iv.length, encrypted.length);
 
-        // Retorna em Base64 para facilitar salvar no banco ou JSON
-        return Base64.getEncoder().encodeToString(ivMaisEncrypted);
+        // Return as Base64 for easier storage in DB or JSON
+        return Base64.getEncoder().encodeToString(ivPlusEncrypted);
     }
 
     public String decrypt(String encryptedText) throws Exception {
-        byte[] ivMaisEncrypted = Base64.getDecoder().decode(encryptedText);
+        byte[] ivPlusEncrypted = Base64.getDecoder().decode(encryptedText);
 
-        // Extrai o IV dos primeiros 16 bytes
+        // Extract the IV from the first 16 bytes
         byte[] iv = new byte[16];
-        byte[] encrypted = new byte[ivMaisEncrypted.length - 16];
+        byte[] encrypted = new byte[ivPlusEncrypted.length - 16];
 
-        System.arraycopy(ivMaisEncrypted, 0, iv, 0, 16);
-        System.arraycopy(ivMaisEncrypted, 16, encrypted, 0, encrypted.length);
+        System.arraycopy(ivPlusEncrypted, 0, iv, 0, 16);
+        System.arraycopy(ivPlusEncrypted, 16, encrypted, 0, encrypted.length);
 
         IvParameterSpec ivSpec = new IvParameterSpec(iv);
 
-        // Descriptografa
+        // Decrypt
         Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5Padding");
         cipher.init(Cipher.DECRYPT_MODE, secretKey, ivSpec);
         byte[] decrypted = cipher.doFinal(encrypted);
