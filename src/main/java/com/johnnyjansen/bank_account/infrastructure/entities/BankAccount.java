@@ -18,7 +18,7 @@ import java.util.List;
 @Entity
 @Table(name = "bank_account")
 @Builder
-public class BankAccountEntity implements UserDetails {
+public class BankAccount implements UserDetails {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -49,7 +49,7 @@ public class BankAccountEntity implements UserDetails {
     private String cpf;
 
     @OneToMany(mappedBy = "user",cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<BankAccountDetailsEntity> bankAccountDetailsEntities;
+    private List<BankAccountDetails> bankAccountDetailsEntities;
 
 
     @Override

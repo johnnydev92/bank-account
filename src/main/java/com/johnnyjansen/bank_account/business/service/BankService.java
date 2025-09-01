@@ -2,12 +2,13 @@ package com.johnnyjansen.bank_account.business.service;
 
 
 import com.johnnyjansen.bank_account.business.dtos.in.BankAccountDetailsRequestDTO;
-import com.johnnyjansen.bank_account.business.dtos.in.BankAccountEntityRequestDTO;
+import com.johnnyjansen.bank_account.business.dtos.in.BankAccountRequestDTO;
 import com.johnnyjansen.bank_account.business.dtos.out.BankAccountDetailsResponseDTO;
-import com.johnnyjansen.bank_account.business.dtos.out.BankAccountEntityResponseDTO;
+import com.johnnyjansen.bank_account.business.dtos.out.BankAccountResponseDTO;
+import com.johnnyjansen.bank_account.business.mapper.BankAccountUpdateConverter;
 import com.johnnyjansen.bank_account.business.mapper.BankConverter;
-import com.johnnyjansen.bank_account.infrastructure.entities.BankAccountDetailsEntity;
-import com.johnnyjansen.bank_account.infrastructure.entities.BankAccountEntity;
+import com.johnnyjansen.bank_account.infrastructure.entities.BankAccountDetails;
+import com.johnnyjansen.bank_account.infrastructure.entities.BankAccount;
 import com.johnnyjansen.bank_account.infrastructure.exceptions.ConflictException;
 import com.johnnyjansen.bank_account.infrastructure.exceptions.ResourceNotFoundException;
 import com.johnnyjansen.bank_account.infrastructure.repository.BankDetailsRepository;
@@ -21,6 +22,8 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 
+import java.util.Optional;
+
 @Service
 @RequiredArgsConstructor
 public class BankService {
@@ -29,6 +32,7 @@ public class BankService {
     private final BankDetailsRepository bankDetailsRepository;
     private final JwtUtil jwtUtil;
     private BankConverter bankConverter;
+    private BankAccountUpdateConverter bankAccountUpdateConverter;
     private AuthenticationManager authenticationManager;
     @Autowired
     private AES256Encryptor encryptor;
@@ -44,20 +48,20 @@ public class BankService {
         System.out.println("Decrypted: " + decryptedText);
     }
 
-    public BankAccountEntityResponseDTO saveUser
-            (BankAccountEntityRequestDTO entityRequestDTO) throws Exception {
+    public BankAccountResponseDTO saveUser
+            (BankAccountRequestDTO entityRequestDTO) throws Exception {
 
         doesCPfExists(entityRequestDTO.getCpf());
 
         String encryptedPassword = encryptor.encrypt(entityRequestDTO.getPassword());
 
-        BankAccountEntity entity = bankConverter.toBankAccountEntity(entityRequestDTO);
+        BankAccount entity = bankConverter.toBankAccount(entityRequestDTO);
 
         entity.setPassword(encryptedPassword);
 
-        BankAccountEntity savedEntity = bankRepository.save(entity);
+        BankAccount savedEntity = bankRepository.save(entity);
 
-        return bankConverter.toBankAccountEntityResponseDTO(savedEntity);
+        return bankConverter.toBankAccountResponseDTO(savedEntity);
     }
 
     public void doesCPfExists(String cpf){
@@ -76,7 +80,7 @@ public class BankService {
         return bankRepository.existsByCPF(cpf);
     }
 
-    public String loginUser(BankAccountEntity bankAccountEntity) {
+    public String loginUser(BankAccount bankAccountEntity) {
         try {
             Authentication authentication = authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(
@@ -92,24 +96,67 @@ public class BankService {
         }
     }
 
-    public BankAccountEntityResponseDTO searchUserByCpf(String cpf){
+    public BankAccountResponseDTO searchUserByEmail(String email){
         try {
-            return bankConverter.toBankAccountEntityResponseDTO(
-                    bankRepository.findByCPF(cpf)
+            return bankConverter.toBankAccountResponseDTO(
+                    bankRepository.findByEmail(email)
                             .orElseThrow(()
-                                    -> new ResourceNotFoundException("Invalid cpf or do not exists." + cpf)
+                                    -> new ResourceNotFoundException("Invalid email or do not exists." + email)
                             )
             );
         }catch (ResourceNotFoundException e){
-            throw new ResourceNotFoundException("Invalid cpf or do not exists." + cpf);
+            throw new ResourceNotFoundException("Invalid email or do not exists." + email);
         }
     }
 
-    public BankAccountDetailsResponseDTO searchUserDetailsByToken (String token, BankAccountDetailsRequestDTO DetailsRequestDTO){
+    public BankAccountDetailsResponseDTO searchUserDetailsByToken
+            (String token, BankAccountDetailsRequestDTO detailsRequestDTO) {
 
         String cleanToken = token.substring(7);
 
+        String email = jwtUtil.extractEmail(cleanToken);
 
+        BankAccount bankAccount = bankRepository.findByEmail(email)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found for token"));
+
+        BankAccountDetails user = bankDetailsRepository.findByUser(bankAccount)
+                .orElseThrow(() -> new ResourceNotFoundException("Details not found for user"));
+
+        return bankConverter.toBankAccountDetailsResponseDTO(user);
+
+    }
+
+    public BankAccountResponseDTO updateBankAccount(BankAccountRequestDTO bankAccountRequestDTO, String id){
+
+        BankAccount bankAccount = bankRepository.findById(Long.valueOf(id))
+                .orElseThrow(() -> new ResourceNotFoundException("Error. User cannot be located: " + id));
+
+        bankAccountUpdateConverter.updateBankAccount(bankAccountRequestDTO, bankAccount);
+
+        BankAccount savedAccount = bankRepository.save(bankAccount);
+
+        return bankConverter.toBankAccountResponseDTO(savedAccount);
+
+    }
+
+    public void deleteAccountByCpf(String cpf, String token){
+
+        String cleanToken = token.substring(7);
+
+        String cpfExtracted = jwtUtil.extractCpf(cleanToken);
+
+        if(!jwtUtil.validateToken(cleanToken, cpf)){
+            throw new ConflictException("Token is invalid! Try again.");
+        }
+
+        boolean cpfExists = bankRepository.existsByCPF(cpf);
+        if(!cpfExists){
+            throw new ResourceNotFoundException("User cannot be found! Try later.");
+        }
+
+        bankRepository.deleteByCPF(cpf);
+
+    }
 
 
 }
