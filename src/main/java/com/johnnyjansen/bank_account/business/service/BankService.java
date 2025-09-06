@@ -1,7 +1,6 @@
 package com.johnnyjansen.bank_account.business.service;
 
 
-import com.johnnyjansen.bank_account.business.dtos.in.BankAccountDetailsRequestDTO;
 import com.johnnyjansen.bank_account.business.dtos.in.BankAccountRequestDTO;
 import com.johnnyjansen.bank_account.business.dtos.out.BankAccountDetailsResponseDTO;
 import com.johnnyjansen.bank_account.business.dtos.out.BankAccountResponseDTO;
@@ -15,14 +14,13 @@ import com.johnnyjansen.bank_account.infrastructure.repository.BankDetailsReposi
 import com.johnnyjansen.bank_account.infrastructure.repository.BankRepository;
 import com.johnnyjansen.bank_account.infrastructure.security.AES256Encryptor;
 import com.johnnyjansen.bank_account.infrastructure.security.JwtUtil;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
-
-import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -80,12 +78,12 @@ public class BankService {
         return bankRepository.existsByCPF(cpf);
     }
 
-    public String loginUser(BankAccount bankAccountEntity) {
+    public String loginUser(BankAccountRequestDTO bankAccountRequestDTO) {
         try {
             Authentication authentication = authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(
-                            bankAccountEntity.getEmail(),
-                            bankAccountEntity.getPassword()
+                            bankAccountRequestDTO.getEmail(),
+                            bankAccountRequestDTO.getPassword()
                     )
             );
 
@@ -110,7 +108,7 @@ public class BankService {
     }
 
     public BankAccountDetailsResponseDTO searchUserDetailsByToken
-            (String token, BankAccountDetailsRequestDTO detailsRequestDTO) {
+            (String token) {
 
         String cleanToken = token.substring(7);
 
@@ -126,10 +124,14 @@ public class BankService {
 
     }
 
-    public BankAccountResponseDTO updateBankAccount(BankAccountRequestDTO bankAccountRequestDTO, String id){
+    public BankAccountResponseDTO updateBankAccount(BankAccountRequestDTO bankAccountRequestDTO, String token){
 
-        BankAccount bankAccount = bankRepository.findById(Long.valueOf(id))
-                .orElseThrow(() -> new ResourceNotFoundException("Error. User cannot be located: " + id));
+        String cleanToken = token.substring(7);
+
+        String email = jwtUtil.extractEmail(cleanToken);
+
+        BankAccount bankAccount = bankRepository.findByEmail(email)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found for token or invalid token!"));
 
         bankAccountUpdateConverter.updateBankAccount(bankAccountRequestDTO, bankAccount);
 
@@ -139,22 +141,21 @@ public class BankService {
 
     }
 
-    public void deleteAccountByCpf(String cpf, String token){
+    @Transactional
+    public void deleteAccountByToken(String token){
 
         String cleanToken = token.substring(7);
 
-        String cpfExtracted = jwtUtil.extractCpf(cleanToken);
+        String email = jwtUtil.extractEmail(cleanToken);
 
-        if(!jwtUtil.validateToken(cleanToken, cpf)){
+        if (!jwtUtil.validateToken(cleanToken, email)) {
             throw new ConflictException("Token is invalid! Try again.");
         }
 
-        boolean cpfExists = bankRepository.existsByCPF(cpf);
-        if(!cpfExists){
-            throw new ResourceNotFoundException("User cannot be found! Try later.");
-        }
+        BankAccount account = bankRepository.findByEmail(email)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found!"));
 
-        bankRepository.deleteByCPF(cpf);
+        bankRepository.delete(account);
 
     }
 

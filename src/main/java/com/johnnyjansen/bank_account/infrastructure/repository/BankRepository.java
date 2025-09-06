@@ -16,8 +16,7 @@ public interface BankRepository extends JpaRepository<BankAccount, Long> {
 
     Optional<BankAccount> findByCpf(String cpf);
 
-    @Transactional
-    void deleteByCPF(String cpf);
+
 
 
 

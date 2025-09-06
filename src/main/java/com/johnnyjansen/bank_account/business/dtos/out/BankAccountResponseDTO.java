@@ -20,4 +20,5 @@ public class BankAccountResponseDTO {
     private String phoneNumber;
     private String cpf;
 
+
 }
