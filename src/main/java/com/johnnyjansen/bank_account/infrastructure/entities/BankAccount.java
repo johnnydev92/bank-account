@@ -17,6 +17,7 @@ import java.util.List;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
+@Document("Bank-Account")
 @Builder
 @Document("bank_account")
 public class BankAccount implements UserDetails {
