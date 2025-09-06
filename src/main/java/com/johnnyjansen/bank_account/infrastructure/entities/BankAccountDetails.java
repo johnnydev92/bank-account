@@ -25,6 +25,8 @@ public class BankAccountDetails {
 
     private String id; // MongoDB id é String
 
+    private String id; // MongoDB id é String
+
     private Long branchNumber;
     private Long accountNumber;
     private Long cardNumber;
@@ -33,8 +35,9 @@ public class BankAccountDetails {
     private LocalDate expirationDate;
 
     @DBRef
-
     private BankAccount user;
+
+    private BankAccount user; // Relacionamento com o dono da conta
 
     private BankAccount user; // Relacionamento com o dono da conta
 
