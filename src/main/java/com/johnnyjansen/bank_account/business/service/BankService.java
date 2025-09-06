@@ -6,15 +6,14 @@ import com.johnnyjansen.bank_account.business.dtos.out.BankAccountDetailsRespons
 import com.johnnyjansen.bank_account.business.dtos.out.BankAccountResponseDTO;
 import com.johnnyjansen.bank_account.business.mapper.BankAccountUpdateConverter;
 import com.johnnyjansen.bank_account.business.mapper.BankConverter;
-import com.johnnyjansen.bank_account.infrastructure.entities.BankAccountDetails;
 import com.johnnyjansen.bank_account.infrastructure.entities.BankAccount;
+import com.johnnyjansen.bank_account.infrastructure.entities.BankAccountDetails;
 import com.johnnyjansen.bank_account.infrastructure.exceptions.ConflictException;
 import com.johnnyjansen.bank_account.infrastructure.exceptions.ResourceNotFoundException;
 import com.johnnyjansen.bank_account.infrastructure.repository.BankDetailsRepository;
 import com.johnnyjansen.bank_account.infrastructure.repository.BankRepository;
 import com.johnnyjansen.bank_account.infrastructure.security.AES256Encryptor;
 import com.johnnyjansen.bank_account.infrastructure.security.JwtUtil;
-import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -75,7 +74,7 @@ public class BankService {
     }
 
     public boolean checkCpfExists(String cpf){
-        return bankRepository.existsByCPF(cpf);
+        return bankRepository.existsByCpf(cpf);
     }
 
     public String loginUser(BankAccountRequestDTO bankAccountRequestDTO) {
@@ -141,7 +140,7 @@ public class BankService {
 
     }
 
-    @Transactional
+
     public void deleteAccountByToken(String token){
 
         String cleanToken = token.substring(7);

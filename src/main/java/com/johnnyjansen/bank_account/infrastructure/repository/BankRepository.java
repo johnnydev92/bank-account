@@ -1,16 +1,17 @@
 package com.johnnyjansen.bank_account.infrastructure.repository;
 
+
+
 import com.johnnyjansen.bank_account.infrastructure.entities.BankAccount;
-import jakarta.transaction.Transactional;
-import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.stereotype.Repository;
 
 import java.util.Optional;
 
 @Repository
-public interface BankRepository extends JpaRepository<BankAccount, Long> {
+public interface BankRepository extends MongoRepository<BankAccount, String> {
 
-    boolean existsByCPF(String cpf);
+    boolean existsByCpf(String cpf);
 
     Optional<BankAccount> findByEmail(String email);
 

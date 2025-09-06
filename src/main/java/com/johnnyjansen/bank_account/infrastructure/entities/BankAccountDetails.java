@@ -1,8 +1,12 @@
 package com.johnnyjansen.bank_account.infrastructure.entities;
 
 
-import jakarta.persistence.*;
+
+
 import lombok.*;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.mapping.DBRef;
+import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.time.LocalDate;
 
@@ -10,35 +14,21 @@ import java.time.LocalDate;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-@Entity
-@Table(name = "bank_details")
+@Document("Bank-Account-Details")
 @Builder
 public class BankAccountDetails {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private String id;
 
-    @Column(name = "branch_number", unique = true)
     private Long branchNumber;
-
-    @Column(name = "account_number", unique = true)
     private Long accountNumber;
-
-    @Column(name = "card_number", unique = true)
     private Long cardNumber;
-
-    @Column(name = "card_holder")
     private String cardHolder;
-
-    @Column(name = "cvc")
-    private Integer cvc ;
-
-    @Column(name = "expiration_Date")
+    private Integer cvc;
     private LocalDate expirationDate;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id")
+    @DBRef
     private BankAccount user;
 
 }
