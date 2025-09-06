@@ -38,7 +38,7 @@ public interface BankConverter {
 
 
 
-        default BankAccount map(Long userId) {
+        default BankAccount map(String userId) {
             if (userId == null) {
                 return null;
                  }
