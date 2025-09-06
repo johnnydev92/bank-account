@@ -2,8 +2,10 @@ package com.johnnyjansen.bank_account.infrastructure.entities;
 
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import jakarta.persistence.*;
 import lombok.*;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.mapping.DBRef;
+import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
@@ -15,42 +17,33 @@ import java.util.List;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-@Entity
-@Table(name = "bank_account")
 @Builder
+@Document("bank_account")
 public class BankAccount implements UserDetails {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private String id; // Mongo usa String para o _id
 
     @JsonProperty(required = true)
-    @Column(name = "name", updatable = true, unique = true)
     private String name;
 
     @JsonProperty(required = true)
-    @Column(name = "birth_date", updatable = true)
     private LocalDate birthDate;
 
     @JsonProperty(required = true)
-    @Column(name = "email", updatable = true, unique = true)
     private String email;
 
     @JsonProperty(required = true)
-    @Column(name = "password", updatable = true, unique = true)
     private String password;
 
     @JsonProperty(required = true)
-    @Column(name = "phone_number", updatable = true, unique = true)
     private String phoneNumber;
 
     @JsonProperty(required = true)
-    @Column(name = "CPF", updatable = true, unique = true)
     private String cpf;
 
-    @OneToMany(mappedBy = "user",cascade = CascadeType.ALL, orphanRemoval = true)
+    @DBRef
     private List<BankAccountDetails> bankAccountDetailsEntities;
-
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
@@ -64,21 +57,21 @@ public class BankAccount implements UserDetails {
 
     @Override
     public boolean isAccountNonExpired() {
-        return UserDetails.super.isAccountNonExpired();
+        return true;
     }
 
     @Override
     public boolean isAccountNonLocked() {
-        return UserDetails.super.isAccountNonLocked();
+        return true;
     }
 
     @Override
     public boolean isCredentialsNonExpired() {
-        return UserDetails.super.isCredentialsNonExpired();
+        return true;
     }
 
     @Override
     public boolean isEnabled() {
-        return UserDetails.super.isEnabled();
+        return true;
     }
 }
