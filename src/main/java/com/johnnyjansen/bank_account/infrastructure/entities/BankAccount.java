@@ -19,6 +19,7 @@ import java.util.List;
 @NoArgsConstructor
 @Document("Bank-Account")
 @Builder
+@Document("bank_account")
 public class BankAccount implements UserDetails {
 
     @Id
@@ -44,7 +45,6 @@ public class BankAccount implements UserDetails {
 
     @DBRef
     private List<BankAccountDetails> bankAccountDetailsEntities;
-
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
