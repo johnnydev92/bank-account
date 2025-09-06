@@ -14,11 +14,17 @@ import java.time.LocalDate;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
+@Document("Bank-Account-Details")
 @Builder
 @Document("bank_account_details")
 public class BankAccountDetails {
 
     @Id
+
+    private String id;
+
+    private String id; // MongoDB id é String
+
     private String id; // MongoDB id é String
 
     private Long branchNumber;
@@ -29,6 +35,10 @@ public class BankAccountDetails {
     private LocalDate expirationDate;
 
     @DBRef
+    private BankAccount user;
+
+    private BankAccount user; // Relacionamento com o dono da conta
+
     private BankAccount user; // Relacionamento com o dono da conta
 
 
