@@ -2,6 +2,7 @@ package com.johnnyjansen.bank_account.business.dtos.out;
 
 
 import lombok.*;
+import org.bson.types.ObjectId;
 
 import java.time.LocalDate;
 
@@ -13,7 +14,7 @@ import java.time.LocalDate;
 @EqualsAndHashCode
 public class BankAccountResponseDTO {
 
-    private Long id;
+    private String id;
     private String name;
     private LocalDate birthDate;
     private String email;

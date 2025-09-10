@@ -4,8 +4,8 @@ package com.johnnyjansen.bank_account.business.service;
 import com.johnnyjansen.bank_account.business.dtos.in.BankAccountRequestDTO;
 import com.johnnyjansen.bank_account.business.dtos.out.BankAccountDetailsResponseDTO;
 import com.johnnyjansen.bank_account.business.dtos.out.BankAccountResponseDTO;
-import com.johnnyjansen.bank_account.business.mapper.BankAccountUpdateConverter;
-import com.johnnyjansen.bank_account.business.mapper.BankConverter;
+import com.johnnyjansen.bank_account.business.mapper.BankAccountUpdateMapperConverter;
+import com.johnnyjansen.bank_account.business.mapper.BankAccountMapperConverter;
 import com.johnnyjansen.bank_account.infrastructure.entities.BankAccount;
 import com.johnnyjansen.bank_account.infrastructure.entities.BankAccountDetails;
 import com.johnnyjansen.bank_account.infrastructure.exceptions.ConflictException;
@@ -28,8 +28,8 @@ public class BankService {
     private final BankRepository bankRepository;
     private final BankDetailsRepository bankDetailsRepository;
     private final JwtUtil jwtUtil;
-    private BankConverter bankConverter;
-    private BankAccountUpdateConverter bankAccountUpdateConverter;
+    private BankAccountMapperConverter bankAccountMapperConverter;
+    private BankAccountUpdateMapperConverter bankAccountUpdateMapperConverter;
     private AuthenticationManager authenticationManager;
     @Autowired
     private AES256Encryptor encryptor;
@@ -52,13 +52,13 @@ public class BankService {
 
         String encryptedPassword = encryptor.encrypt(entityRequestDTO.getPassword());
 
-        BankAccount entity = bankConverter.toBankAccount(entityRequestDTO);
+        BankAccount entity = bankAccountMapperConverter.toBankAccount(entityRequestDTO);
 
         entity.setPassword(encryptedPassword);
 
         BankAccount savedEntity = bankRepository.save(entity);
 
-        return bankConverter.toBankAccountResponseDTO(savedEntity);
+        return bankAccountMapperConverter.toBankAccountResponseDTO(savedEntity);
     }
 
     public void doesCPfExists(String cpf){
@@ -95,7 +95,7 @@ public class BankService {
 
     public BankAccountResponseDTO searchUserByEmail(String email){
         try {
-            return bankConverter.toBankAccountResponseDTO(
+            return bankAccountMapperConverter.toBankAccountResponseDTO(
                     bankRepository.findByEmail(email)
                             .orElseThrow(()
                                     -> new ResourceNotFoundException("Invalid email or do not exists." + email)
@@ -119,7 +119,7 @@ public class BankService {
         BankAccountDetails user = bankDetailsRepository.findByUser(bankAccount)
                 .orElseThrow(() -> new ResourceNotFoundException("Details not found for user"));
 
-        return bankConverter.toBankAccountDetailsResponseDTO(user);
+        return bankAccountMapperConverter.toBankAccountDetailsResponseDTO(user);
 
     }
 
@@ -132,11 +132,11 @@ public class BankService {
         BankAccount bankAccount = bankRepository.findByEmail(email)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found for token or invalid token!"));
 
-        bankAccountUpdateConverter.updateBankAccount(bankAccountRequestDTO, bankAccount);
+        bankAccountUpdateMapperConverter.updateBankAccount(bankAccountRequestDTO, bankAccount);
 
         BankAccount savedAccount = bankRepository.save(bankAccount);
 
-        return bankConverter.toBankAccountResponseDTO(savedAccount);
+        return bankAccountMapperConverter.toBankAccountResponseDTO(savedAccount);
 
     }
 
