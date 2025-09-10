@@ -140,7 +140,6 @@ public class BankService {
 
     }
 
-
     public void deleteAccountByToken(String token){
 
         String cleanToken = token.substring(7);
