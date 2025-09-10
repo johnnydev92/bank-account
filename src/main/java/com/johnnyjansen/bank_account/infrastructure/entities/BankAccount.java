@@ -3,6 +3,7 @@ package com.johnnyjansen.bank_account.infrastructure.entities;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;
+import org.bson.types.ObjectId;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
@@ -23,7 +24,7 @@ import java.util.List;
 public class BankAccount implements UserDetails {
 
     @Id
-    private String id; // Mongo usa String para o _id
+    private ObjectId id;
 
     @JsonProperty(required = true)
     private String name;

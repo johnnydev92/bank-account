@@ -2,6 +2,7 @@ package com.johnnyjansen.bank_account.business.dtos.out;
 
 
 import lombok.*;
+import org.bson.types.ObjectId;
 
 import java.time.YearMonth;
 
@@ -13,7 +14,7 @@ import java.time.YearMonth;
 @EqualsAndHashCode
 public class BankAccountDetailsResponseDTO {
 
-    private Long id;
+    private String id;
     private String branchNumber;
     private String accountNumber;
     private String cardNumber;
