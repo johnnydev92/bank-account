@@ -16,7 +16,7 @@ public class BankAccountDetailsResponseDtoFixture {
              String cardHolder,
              String cvc,
              YearMonth expirationDate,
-             Long userId
+             String userId
 
     ){
 
