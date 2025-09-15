@@ -21,5 +21,5 @@ public class BankAccountDetailsResponseDTO {
     private String cardHolder;
     private String cvc;
     private YearMonth expirationDate;
-    private Long userId;
+    private String userId;
 }

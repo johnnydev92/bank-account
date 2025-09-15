@@ -18,9 +18,9 @@ import java.util.List;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-@Document("Bank-Account")
 @Builder
 @Document("bank_account")
+@EqualsAndHashCode
 public class BankAccount implements UserDetails {
 
     @Id

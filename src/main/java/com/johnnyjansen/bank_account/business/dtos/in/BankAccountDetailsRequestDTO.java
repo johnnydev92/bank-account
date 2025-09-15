@@ -20,5 +20,5 @@ public class BankAccountDetailsRequestDTO {
     private String cardHolder;
     private String cvc;
     private YearMonth expirationDate;
-    private Long userId;
+    private String userId;
 }
