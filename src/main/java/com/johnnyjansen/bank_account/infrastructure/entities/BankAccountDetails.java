@@ -31,10 +31,7 @@ public class BankAccountDetails {
     private YearMonth expirationDate;
 
     @DBRef
-
     private BankAccount user;
-
-
 
 
 }
