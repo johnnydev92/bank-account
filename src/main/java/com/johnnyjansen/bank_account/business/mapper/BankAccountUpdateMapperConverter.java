@@ -15,7 +15,4 @@ public interface BankAccountUpdateMapperConverter {
     @Mapping(target = "bankAccountDetailsEntities", ignore = true)
     void updateBankAccount(BankAccountRequestDTO dto, @MappingTarget BankAccount bankAccount);
 
-
-
-
 }

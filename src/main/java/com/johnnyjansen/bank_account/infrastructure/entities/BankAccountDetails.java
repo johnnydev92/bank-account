@@ -16,21 +16,13 @@ import java.time.YearMonth;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-@Document("Bank-Account-Details")
 @Builder
 @Document("bank_account_details")
+@EqualsAndHashCode
 public class BankAccountDetails {
 
     @Id
- feature/bank-account-desenvolvimento
-
-    private String id;
-
     private ObjectId id;
-
-
-    private String id; // MongoDB id é String
-
     private Long branchNumber;
     private Long accountNumber;
     private Long cardNumber;
@@ -42,7 +34,7 @@ public class BankAccountDetails {
 
     private BankAccount user;
 
-    private BankAccount user; // Relacionamento com o dono da conta
+
 
 
 }
