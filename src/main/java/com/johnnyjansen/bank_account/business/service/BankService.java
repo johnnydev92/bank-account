@@ -28,11 +28,11 @@ public class BankService {
     private final BankRepository bankRepository;
     private final BankDetailsRepository bankDetailsRepository;
     private final JwtUtil jwtUtil;
-    private BankAccountMapperConverter bankAccountMapperConverter;
-    private BankAccountUpdateMapperConverter bankAccountUpdateMapperConverter;
-    private AuthenticationManager authenticationManager;
+    private final BankAccountMapperConverter bankAccountMapperConverter;
+    private final BankAccountUpdateMapperConverter bankAccountUpdateMapperConverter;
+    private final AuthenticationManager authenticationManager;
     @Autowired
-    private AES256Encryptor encryptor;
+    private final AES256Encryptor encryptor;
 
     public void testEncryption() throws Exception {
         String originalText = "CVC=123";
