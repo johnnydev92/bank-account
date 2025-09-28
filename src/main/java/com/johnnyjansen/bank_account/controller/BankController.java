@@ -27,7 +27,7 @@ public class BankController {
     private final JwtUtil jwtUtil;
 
 
-    @GetMapping("/{email}")
+    @GetMapping
     @Operation(summary = "Search user account", description = "Seek user account by email")
     @ApiResponse(responseCode = "200", description = "User founded successfully")
     @ApiResponse(responseCode = "404", description = "User cannot be found. Try later.")

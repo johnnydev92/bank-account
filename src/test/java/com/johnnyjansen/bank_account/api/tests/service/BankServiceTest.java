@@ -257,6 +257,145 @@ public class BankServiceTest {
         assertEquals("Invalid email or do not exists." + emailNotFound, exception.getMessage());
     }
 
+    @Test
+    void mustSearchUserDetailsByToken(){
+
+        String token = "Bearer fake-token";
+        String cleanToken = token.substring(7);
+        String email = bankAccount.getEmail();
+
+        when(jwtUtil.extractEmail(cleanToken)).thenReturn(email);
+        when(bankRepository.findByEmail(email)).thenReturn(Optional.of(bankAccount));
+        when(bankDetailsRepository.findByUser(bankAccount)).thenReturn(Optional.of(bankAccountDetails));
+        when(bankAccountMapperConverter.toBankAccountDetailsResponseDTO(bankAccountDetails))
+                .thenReturn(bankAccountDetailsResponseDTO);
+
+        BankAccountDetailsResponseDTO result = bankService.searchUserDetailsByToken(token);
+
+        assertNotNull(result);
+        assertEquals(bankAccountDetailsResponseDTO, result);
+
+    }
+
+    @Test
+    void shouldThrowExceptionWhenUserNotFound() {
+
+        String token = "Bearer fake-token";
+        String cleanToken = token.substring(7);
+        String email = "joana.dark@hotmail.com";
+
+        when(jwtUtil.extractEmail(cleanToken)).thenReturn(email);
+        when(bankRepository.findByEmail(email)).thenReturn(Optional.empty());
+
+        ResourceNotFoundException exception = assertThrows(ResourceNotFoundException.class, () -> {
+            bankService.searchUserDetailsByToken(token);
+        });
+
+        assertEquals("User not found for token", exception.getMessage());
+
+
+        verify(jwtUtil).extractEmail(cleanToken);
+        verify(bankRepository).findByEmail(email);
+        verifyNoMoreInteractions(bankDetailsRepository, bankAccountMapperConverter);
+    }
+
+    @Test
+    void mustUpdateBankAccountByToken (){
+
+        String token = "Bearer fake-token";
+        String cleanToken = token.substring(7);
+        String email = bankAccount.getEmail();
+
+        when(jwtUtil.extractEmail(cleanToken)).thenReturn(email);
+        when(bankRepository.findByEmail(email)).thenReturn(Optional.of(bankAccount));
+        doNothing().when(bankAccountUpdateMapperConverter).updateBankAccount(bankAccountRequestDTO, bankAccount);
+        when(bankRepository.save(bankAccount)).thenReturn(bankAccount);
+        when(bankAccountMapperConverter.toBankAccountResponseDTO(bankAccount))
+                .thenReturn(bankAccountResponseDTO);
+
+        BankAccountResponseDTO result = bankService.updateBankAccount(bankAccountRequestDTO, token);
+
+        assertNotNull(result);
+        assertEquals(bankAccountResponseDTO, result);
+
+        verify(jwtUtil).extractEmail(cleanToken);
+        verify(bankRepository).findByEmail(email);
+        verify(bankAccountUpdateMapperConverter).updateBankAccount(bankAccountRequestDTO, bankAccount);
+        verify(bankRepository).save(bankAccount);
+        verify(bankAccountMapperConverter).toBankAccountResponseDTO(bankAccount);
+
+        verifyNoMoreInteractions(jwtUtil, bankRepository, bankAccountUpdateMapperConverter, bankAccountMapperConverter);
+    }
+
+    @Test
+    void shouldThrowExceptionWhenUserNotFoundForUpdate() {
+
+        String token = "Bearer fake-token";
+        String cleanToken = token.substring(7);
+        String email = "email@donotexists.com";
+
+
+        when(jwtUtil.extractEmail(cleanToken)).thenReturn(email);
+        when(bankRepository.findByEmail(email)).thenReturn(Optional.empty());
+
+
+        ResourceNotFoundException exception = assertThrows(ResourceNotFoundException.class, () -> {
+            bankService.updateBankAccount(bankAccountRequestDTO, token);
+        });
+
+        assertEquals("User not found for token or invalid token!", exception.getMessage());
+
+        verify(jwtUtil).extractEmail(cleanToken);
+        verify(bankRepository).findByEmail(email);
+
+        verifyNoMoreInteractions(jwtUtil, bankRepository, bankAccountUpdateMapperConverter, bankAccountMapperConverter);
+    }
+
+    @Test
+    void mustDeleteAccountByToken(){
+
+        String token = "Bearer fake-token";
+        String cleanToken = token.substring(7);
+        String email = bankAccount.getEmail();
+
+        when(jwtUtil.extractEmail(cleanToken)).thenReturn(email);
+        when(jwtUtil.validateToken(cleanToken, email)).thenReturn(true);
+        when(bankRepository.findByEmail(email)).thenReturn(Optional.of(bankAccount));
+        doNothing().when(bankRepository).delete(bankAccount);
+
+        bankService.deleteAccountByToken(token);
+
+        verify(jwtUtil).extractEmail(cleanToken);
+        verify(jwtUtil).validateToken(cleanToken, email);
+        verify(bankRepository).findByEmail(email);
+        verify(bankRepository).delete(bankAccount);
+
+        verifyNoMoreInteractions(jwtUtil, bankRepository);
+
+    }
+
+    @Test
+    void shouldThrowConflictExceptionWhenTokenIsInvalid() {
+
+        String token = "Bearer fake-token";
+        String cleanToken = token.substring(7);
+        String email = bankAccount.getEmail();
+
+        when(jwtUtil.extractEmail(cleanToken)).thenReturn(email);
+        when(jwtUtil.validateToken(cleanToken, email)).thenReturn(false);
+
+
+        ConflictException exception = assertThrows(ConflictException.class, () ->
+                bankService.deleteAccountByToken(token)
+        );
+
+        assertEquals("Token is invalid! Try again.", exception.getMessage());
+
+        // Verificações
+        verify(jwtUtil).extractEmail(cleanToken);
+        verify(jwtUtil).validateToken(cleanToken, email);
+        verifyNoMoreInteractions(jwtUtil, bankRepository);
+    }
 
 }
 
