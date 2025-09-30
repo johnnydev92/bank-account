@@ -92,22 +92,22 @@ public class BankController {
 
     }
 
-    @PatchMapping("/updateBankAccount")
-    @Operation(summary = "Update user account", description = "Update user account")
-    @ApiResponse(responseCode = "200", description = "Login was success")
-    @ApiResponse(responseCode = "409", description = "Wrong email or password or user do not exists! Try again.")
-    @ApiResponse(responseCode = "500", description = "Server error!")
-    public ResponseEntity<BankAccountResponseDTO> updateUserAccount(@RequestBody BankAccountRequestDTO dto,
-            @RequestHeader("Authorization") String token){
+        @PatchMapping("/updateBankAccount")
+        @Operation(summary = "Update user account", description = "Update user account")
+        @ApiResponse(responseCode = "200", description = "Login was success")
+        @ApiResponse(responseCode = "409", description = "Wrong email or password or user do not exists! Try again.")
+        @ApiResponse(responseCode = "500", description = "Server error!")
+        public ResponseEntity<BankAccountResponseDTO> updateUserAccount(@RequestBody BankAccountRequestDTO dto,
+                @RequestHeader("Authorization") String token){
 
-        BankAccountResponseDTO updatedUser = bankService.updateBankAccount(dto, token);
+            BankAccountResponseDTO updatedUser = bankService.updateBankAccount(dto, token);
 
-        return ResponseEntity.ok(updatedUser);
-    }
+            return ResponseEntity.ok(updatedUser);
+        }
 
-    @DeleteMapping("/{cpf}")
+    @DeleteMapping
     @Operation(summary = "Delete user account", description = "Delete user account by token and cpf")
-    @ApiResponse(responseCode = "200", description = "User account was deleted successfully")
+    @ApiResponse(responseCode = "201", description = "User account was deleted successfully")
     @ApiResponse(responseCode = "409", description = "Invalid token or wrong cpf.")
     @ApiResponse(responseCode = "500", description = "Server error!")
     public ResponseEntity<Void> deleteUserAccountByTokenCpf
