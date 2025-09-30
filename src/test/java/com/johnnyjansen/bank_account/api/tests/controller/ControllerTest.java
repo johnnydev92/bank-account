@@ -26,17 +26,17 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.ResultMatcher;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
-
-import static org.mockito.Mockito.*;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 
 import java.time.LocalDate;
 import java.time.YearMonth;
 import java.util.List;
 
+import static org.mockito.Mockito.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
+
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @ExtendWith(MockitoExtension.class)
@@ -159,7 +159,7 @@ public class ControllerTest {
 
         mockMvc.perform(get(url)
                         .param("email", bankAccountRequestDTO.getEmail())
-                        .contentType(MediaType.APPLICATION_JSON)
+                        .contentType(org.springframework.http.MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON))
                         .andExpect(status().isOk());
 
@@ -167,4 +167,96 @@ public class ControllerTest {
         verifyNoMoreInteractions(bankService);
     }
 
+    @Test
+    void mustSearchBankDetailsByToken() throws Exception{
+
+        String token = "Bearer fake-token";
+
+        when(bankService.searchUserDetailsByToken(token))
+                .thenReturn(bankAccountDetailsResponseDTO);
+
+        mockMvc.perform(get(url + "/userAccount/details")
+                        .header("Authorization", token)
+                        .contentType(org.springframework.http.MediaType.APPLICATION_JSON)
+                        .accept(org.springframework.http.MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk());
+
+        verify(bankService).searchUserDetailsByToken(token);
+        verifyNoMoreInteractions(bankService);
+
+    }
+
+    @Test
+    void mustRegisterBankAccountSuccessfully() throws Exception {
+        when(bankService.saveUser(any(BankAccountRequestDTO.class)))
+                .thenReturn(bankAccountResponseDTO);
+
+        mockMvc.perform(post(url + "/register")
+                        .contentType(org.springframework.http.MediaType.APPLICATION_JSON)
+                            .accept(org.springframework.http.MediaType.APPLICATION_JSON)
+                        .content(json))
+                .andExpect(status().isCreated());
+
+        verify(bankService).saveUser(any(BankAccountRequestDTO.class));
+        verifyNoMoreInteractions(bankService);
+    }
+
+    @Test
+    void mustLoginBankAccountUserSuccessfully() throws Exception {
+
+        String token = "Bearer fake-token";
+
+        when(bankService.loginUser
+                (bankAccountRequestDTO)).thenReturn(token);
+
+        mockMvc.perform(post(url + "/login")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(json))
+                .andExpect(status().isOk())
+                .andExpect(content().string(token));
+
+        verify(bankService).loginUser(bankAccountRequestDTO);
+        verifyNoMoreInteractions(bankService);
+    }
+
+    @Test
+    void mustUpdateBankAccountSuccessfully() throws Exception {
+
+        String token = "Bearer fake-token";
+
+        when(bankService.updateBankAccount(bankAccountRequestDTO, token))
+                .thenReturn(bankAccountResponseDTO);
+
+        String expectedJson = objectMapper.writeValueAsString(bankAccountResponseDTO);
+
+        mockMvc.perform(patch("/bankAccount/updateBankAccount")
+                        .header("Authorization", token)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(json))
+                .andExpect(status().isOk())
+                .andExpect(content().json(expectedJson));
+
+        verify(bankService).updateBankAccount(bankAccountRequestDTO, token);
+        verifyNoMoreInteractions(bankService);
+
+    }
+
+    @Test
+    void mustDeleteBankAccountUserByToken() throws Exception{
+
+        String token = "Bearer fake-token";
+
+        doNothing().when(bankService).deleteAccountByToken(token);
+
+        mockMvc.perform(delete(url)
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON)
+                .header("Authorization", token)
+                .content(json))
+                .andExpect(status().isAccepted());
+
+        verify(bankService).deleteAccountByToken(token);
+        verifyNoMoreInteractions(bankService);
+
+    }
 }
