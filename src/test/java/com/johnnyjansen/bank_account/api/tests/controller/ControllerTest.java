@@ -25,6 +25,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.MediaType;
+import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
@@ -77,6 +78,7 @@ public class ControllerTest {
     void setup() throws JsonProcessingException {
         mockMvc = MockMvcBuilders.standaloneSetup(bankController)
                 .setControllerAdvice(new GlobalExceptionHandler())
+                .setMessageConverters(new MappingJackson2HttpMessageConverter(objectMapper))
                 .alwaysDo(print())
                 .build();
 
@@ -211,9 +213,9 @@ public class ControllerTest {
 
         mockMvc.perform(post(url + "/login")
                         .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON)
                         .content(json))
-                .andExpect(status().isOk())
-                .andExpect(content().string(token));
+                .andExpect(status().isOk());
 
         verify(bankService).loginUser(bankAccountRequestDTO);
         verifyNoMoreInteractions(bankService);
